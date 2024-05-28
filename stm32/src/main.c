@@ -1,10 +1,10 @@
 /*
  * ************************************************
  * 
- *              STM32 blink gcc demo
+ * STM32 blink demo
  * 
- *  CPU: STM32F103C8
- *  PIN: PA1
+ * CPU:     STM32F103C8
+ * PIN:     PA1
  * 
  * ************************************************
 */
@@ -26,16 +26,18 @@ void delay(int x)
 
 int main()
 {
-    GPIO_InitTypeDef gpioDef;
-    RCC_APB2PeriphClockCmd(LED_PERIPH, ENABLE);
-    gpioDef.GPIO_Mode = GPIO_Mode_Out_PP;
-    gpioDef.GPIO_Pin = LED_PIN;
-    gpioDef.GPIO_Speed = GPIO_Speed_10MHz;
-    GPIO_Init(LED_PORT, &gpioDef);
-
+    GPIO_InitTypeDef initStruct; 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); // 配置时钟GPIOA
+	initStruct.GPIO_Pin = GPIO_Pin_0 ;
+	initStruct.GPIO_Mode = GPIO_Mode_Out_PP;
+	initStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &initStruct);
+	GPIO_WriteBit(GPIOA, GPIO_Pin_0, Bit_RESET);
     while (1)
     {
-        GPIO_WriteBit(LED_PORT, LED_PIN, (BitAction)!GPIO_ReadInputDataBit(LED_PORT, LED_PIN));
-        delay(5000);
+        // GPIO_WriteBit(GPIOA, GPIO_Pin_0, Bit_SET);
+        // delay(2000);
+        // GPIO_WriteBit(GPIOA, GPIO_Pin_0, Bit_RESET);
+        // delay(2000);
     }
 }
