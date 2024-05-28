@@ -32,12 +32,12 @@ int main()
 	initStruct.GPIO_Mode = GPIO_Mode_Out_PP;
 	initStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &initStruct);
-	
+	GPIO_WriteBit(GPIOA, GPIO_Pin_0, Bit_RESET);
     while (1)
     {
-        GPIO_WriteBit(GPIOA, GPIO_Pin_0, Bit_SET);
-        delay(2000);
-        GPIO_WriteBit(GPIOA, GPIO_Pin_0, Bit_RESET);
-        delay(2000);
+        // GPIO_WriteBit(GPIOA, GPIO_Pin_0, Bit_SET);
+        // delay(2000);
+        // GPIO_WriteBit(GPIOA, GPIO_Pin_0, Bit_RESET);
+        // delay(2000);
     }
 }
