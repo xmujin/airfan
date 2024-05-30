@@ -5,7 +5,9 @@
   "srcDirs": [
     ".eide/deps",
     "src",
-    "hal"
+    "hal",
+    "hardware",
+    "system"
   ],
   "outDir": "build",
   "deviceName": "STM32F102C8",
