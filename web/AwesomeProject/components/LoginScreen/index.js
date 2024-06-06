@@ -5,7 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 
 
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#e8ecf4'}}>
 
@@ -52,23 +52,20 @@ export default function LoginScreen() {
 
           <View style={styles.formAction}>
             <TouchableOpacity
-              onPress={() => Alert.alert('登录成功')}
+              onPress={() => navigation.navigate('Home')}
             >
               <View style={styles.btn}>
                 <Text style={styles.btnText}>
                   登录
                 </Text>
               </View>
-
-
             </TouchableOpacity>
 
-            
-            
-
+          
           </View>
 
           <TouchableOpacity
+              onPress={() => navigation.navigate('Register')}
               style={{marginTop:'auto'}}
             >
               <Text  style={styles.formFooter}>

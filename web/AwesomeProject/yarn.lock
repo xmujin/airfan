@@ -5740,6 +5740,11 @@ react-is@^17.0.1:
   resolved "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
+react-native-ble-manager@^11.5.3:
+  version "11.5.3"
+  resolved "https://registry.npmjs.org/react-native-ble-manager/-/react-native-ble-manager-11.5.3.tgz"
+  integrity sha512-Lbyh9VqE3TcXYEjH6nwAq7LQ4qcrfx3dH0q/W7wKInnneaPdgw23TxiKfLbsyJdNpnRgLWXTIk481PFYGyG+OA==
+
 react-native-safe-area-context@^4.10.4, "react-native-safe-area-context@>= 3.0.0":
   version "4.10.4"
   resolved "https://registry.npmjs.org/react-native-safe-area-context/-/react-native-safe-area-context-4.10.4.tgz"
@@ -5761,7 +5766,7 @@ react-native-vector-icons@^10.1.0:
     prop-types "^15.7.2"
     yargs "^16.1.1"
 
-react-native@*, react-native@0.74.1:
+react-native@*, react-native@>=0.60.0, react-native@0.74.1:
   version "0.74.1"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.74.1.tgz"
   integrity sha512-0H2XpmghwOtfPpM2LKqHIN7gxy+7G/r1hwJHKLV6uoyXGC/gCojRtoo5NqyKrWpFC8cqyT6wTYCLuG7CxEKilg==

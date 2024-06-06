@@ -14,9 +14,13 @@
 #include "Delay.h"
 #include "timer.h"
 #include "pwm.h"
+#include "DHT11.h"
 #define LED_PERIPH RCC_APB2Periph_GPIOA
 #define LED_PORT GPIOA
 #define LED_PIN GPIO_Pin_1
+
+
+
 
 uint16_t i;
 uint16_t num = 0;
@@ -24,7 +28,8 @@ int main()
 {
     OLED_Init();
     //timer_init();
-    OLED_ShowString(1, 1, "num is:");
+    //OLED_ShowString(1, 1, "num is:");
+    //OLED_ShowString(2, 1, "shabi");
     pwm_init();                
 
 
@@ -38,12 +43,17 @@ int main()
     GPIO_WriteBit(GPIOA, GPIO_Pin_6, Bit_SET);
 
 
-
+    DHT11_init();
 
 
 
     while (1)
     {
+        DHT11_detect data = DHT11_Read();
+        OLED_ShowString(2, 1, "temper: ");
+        OLED_ShowNum(2, 9, data.temperature, 2);
+        OLED_ShowString(3, 1, "humidity: ");
+        OLED_ShowNum(3, 11, data.humidity, 2);
         for (i = 0; i <= 100; i++)
         {
             pwm_setCompare2(i);
