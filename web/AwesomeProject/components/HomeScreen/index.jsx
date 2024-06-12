@@ -8,7 +8,7 @@ import { useIsFocused } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const [favorites, setFavorites] = useState([]);
   const isFocused = useIsFocused();
   const [connectedDevice, setConnectedDevice] = useState(null); // 已连接的设备
@@ -120,19 +120,38 @@ export default function HomeScreen() {
           <Text style={styles.title}>请选择操作:</Text>
           <TouchableOpacity
             style={styles.pickerButton}
-            onPress={() => setModalVisible(false)}
+            onPress={() => {
+              setModalVisible(false);
+              navigation.navigate('FanControlScreen');
+
+            }
+            }
           >
             <Text style={styles.pickerText}>风扇控制</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.pickerButton}
-            onPress={() => setModalVisible(false)}
+            onPress={() => {
+
+              setModalVisible(false);
+              navigation.navigate('LightControlScreen');
+
+
+            }
+          }
           >
             <Text style={styles.pickerText}>灯光控制</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.pickerButton}
-            onPress={() => setModalVisible(false)}
+            onPress={() => {
+
+
+              setModalVisible(false);
+              navigation.navigate('WifiControlScreen');
+
+
+            }}
           >
             <Text style={styles.pickerText}>wifi连接</Text>
           </TouchableOpacity>

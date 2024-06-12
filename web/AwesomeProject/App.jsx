@@ -8,8 +8,9 @@ import HomeScreen from './components/HomeScreen'
 import Toast from 'react-native-toast-message';
 import PopupMenu from './components/PopupMenu'
 import NewDeviceScreen from './components/NewDeviceScreen';
-
-
+import FanControlScreen from './components/FanControlScreen';
+import LightControlScreen from './components/LightControlScreen';
+import WifiControlScreen from './components/WifiControlScreen';
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -47,6 +48,24 @@ export default function App() {
         options={{headerShown: true, title: '添加设备'}}
         name="NewDevice" 
         component={NewDeviceScreen} 
+      />
+
+      <Stack.Screen 
+        options={{headerShown: true, title: '风扇控制'}}
+        name="FanControlScreen" 
+        component={FanControlScreen} 
+      />
+
+      <Stack.Screen 
+        options={{headerShown: true, title: '灯光控制'}}
+        name="LightControlScreen" 
+        component={LightControlScreen} 
+      />
+
+      <Stack.Screen 
+        options={{headerShown: true, title: 'wifi控制'}}
+        name="WifiControlScreen" 
+        component={WifiControlScreen} 
       />
 
 
