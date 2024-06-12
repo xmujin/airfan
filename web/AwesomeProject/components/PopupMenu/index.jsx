@@ -27,22 +27,22 @@ export default function PopupMenu() {
 
         <Ionicons name="add-outline" size={27}  />
       </TouchableOpacity>
-      <Modal transparent={true} visible={visibel}>
-        <SafeAreaView  style={{flex: 1} } >
+      <Modal  transparent={true} visible={visibel}>
+        <SafeAreaView   style={{flex:0, zIndex:1, }}>
           <Animated.View style={[styles.popup, {opacity: fadeAnim}]}>
-            <TouchableOpacity onPress={() => {
+            <TouchableOpacity style={{}} onPress={() => {
               setVisible(false);
               navigation.navigate('NewDevice');
             }}>
-              <Text style={{fontSize:22, color:'#000'}}>
+              <Text style={{fontSize:22, color:'#000', backgroundColor:'white'}}>
                 添加新设备
               </Text>
             </TouchableOpacity>
           </Animated.View>
-
-
-
         </SafeAreaView>
+
+        <TouchableOpacity style={{flex:1,flexDirection:'column-reverse', backgroundColor:'rgba(0,0,0,0.3)'}} onPress={() => setVisible(false)}>
+        </TouchableOpacity>
 
 
       </Modal>

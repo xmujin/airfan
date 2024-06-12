@@ -146,8 +146,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHertical: 20,
 
-
-    
   },
   btnText: {
     fontSize:20,
