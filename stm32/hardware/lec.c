@@ -37,7 +37,13 @@ void led_open(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
     GPIO_WriteBit(GPIOx, GPIO_Pin, RESET);
 }
 
-
+/**
+ * @brief 关闭灯泡
+ * @param GPIOx 
+ * @param GPIO_Pin 
+ * @author xiangbo (xx806181859@gmail.com)
+ * @date 2024-06-18 09:06:25 
+ */
 void led_close(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 {
     GPIO_WriteBit(GPIOx, GPIO_Pin, SET);

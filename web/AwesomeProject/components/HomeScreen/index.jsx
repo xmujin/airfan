@@ -1,6 +1,6 @@
 import { View,Modal, Text, StyleSheet, FlatList, TouchableOpacity, PermissionsAndroid, Platform, NativeEventEmitter, NativeModules, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import RNBluetoothClassic, {BluetoothDevice} from 'react-native-bluetooth-classic';
+import RNBluetoothClassic from 'react-native-bluetooth-classic';
 import Toast from 'react-native-toast-message';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,7 +12,6 @@ export default function HomeScreen({ navigation }) {
   const [favorites, setFavorites] = useState([]);
   const isFocused = useIsFocused();
   const [connectedDevice, setConnectedDevice] = useState(null); // 已连接的设备
-  const [selectedValue, setSelectedValue] = useState("java");
   const [modalVisible, setModalVisible] = useState(false); // 底部弹出菜单
   const [currentIndex, setCurrentIndex] = useState(); // 已连接的设备 
 
@@ -37,14 +36,26 @@ export default function HomeScreen({ navigation }) {
   const connectDevice = async (item) => {
    
     try {
-			const connected = await RNBluetoothClassic.pairDevice(item.id);
+      
+			const connected = await RNBluetoothClassic.connectToDevice(item.id);
       setConnectedDevice(connected);
       setFavorites(favorites.map(favorite =>
         favorite.id === item.id ? { name:favorite.name, id: favorite.id, isConnected: true } : favorite
       ));
+      Toast.show({
+        type: 'success',
+        text1: `蓝牙连接成功`,
+        position: 'top',
+        visibilityTime: 2000,
+      });
 			
 		} catch (e) {
-			console.error(e);
+			Toast.show({
+        type: 'error',
+        text1: `蓝牙连接失败`,
+        position: 'top',
+        visibilityTime: 2000,
+      });
 		}
   }
 
@@ -75,7 +86,7 @@ export default function HomeScreen({ navigation }) {
                   <View>
                   <Text style={{fontSize:25}}>{item.name === item.id? '未命名设备' : item.name}</Text>
                   <Text>Mac地址: {item.id}</Text>
-                  <Text>状态: {item.isConnected? <Text style={{color:'green'}}>{'已连接'}</Text> : <Text style={{color:'red'}}>{'未连接'}</Text>}</Text>
+                  <Text>蓝牙连接状态: {item.isConnected? <Text style={{color:'green'}}>{'已连接'}</Text> : <Text style={{color:'red'}}>{'未连接'}</Text>}</Text>
                   </View>
                 
                   <View>
@@ -122,7 +133,7 @@ export default function HomeScreen({ navigation }) {
             style={styles.pickerButton}
             onPress={() => {
               setModalVisible(false);
-              navigation.navigate('FanControlScreen');
+              navigation.navigate('FanControlScreen', {device: connectedDevice});
 
             }
             }

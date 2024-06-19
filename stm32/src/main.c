@@ -70,12 +70,12 @@ int main()
         if(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET)
         {
             a = USART_ReceiveData(USART1);
-            if(a == 49)
+            if(a == 49)  // ascii 字符1
             {
                 led_open(GPIOB, GPIO_Pin_5);
             }
 
-            if(a == 50)
+            if(a == 50) // ascii 字符2
             {
                 led_close(GPIOB, GPIO_Pin_5);
             }

@@ -1,11 +1,49 @@
 import { Text, StyleSheet, View, SafeAreaView, TextInput, TouchableOpacity, Button, Alert } from 'react-native'
-import React, { Component } from 'react'
+import React, { Component, useState  } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-
+import Toast from 'react-native-toast-message';
 
 
 
 export default function LoginScreen({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoginError, setIsLoginError] = useState(false);
+  const handleLogin = async () => {
+    try {
+      const formData = new FormData(); // 创建FormData对象
+      formData.append('email', email)
+      formData.append('password', password)
+      const response = await fetch('http://dontbeknow:5000/login', { // 替换为你的API地址
+        method: 'POST',
+        body: formData
+      });
+      const resText = await response.text();
+      if(response.status == 200)
+      {
+        Toast.show({
+          type: 'success',
+          text1: `登录成功`,
+          position: 'top',
+          visibilityTime: 1000,
+        });
+        navigation.navigate('Home');
+        setIsLoginError(false);
+      }
+      else
+      {
+        setIsLoginError(true);
+      }
+
+
+    } catch(error) {
+      console.log(error)
+    }
+    
+
+      
+  }
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#e8ecf4'}}>
 
@@ -29,9 +67,8 @@ export default function LoginScreen({ navigation }) {
             <TextInput 
               style={styles.inputControl}
               placeholder='请输入用户名'
-
-
-                          
+              value={email}
+              onChangeText={text => setEmail(text)}      
             />
 
           </View>
@@ -46,13 +83,22 @@ export default function LoginScreen({ navigation }) {
               style={styles.inputControl}
               placeholder='请输入密码'
               secureTextEntry={true}
+              value={password}
+              onChangeText={text => setPassword(text)}
             />
 
           </View>
+          {isLoginError&&
+          (<View style={{flexDirection:'row', justifyContent:'center'}}>
+            <Text style={{color:'red'}}>
+              登录失败，请检查用户名和密码！
+            </Text>
+          </View>
+          )}
 
           <View style={styles.formAction}>
             <TouchableOpacity
-              onPress={() => navigation.navigate('Home')}
+              onPress={handleLogin}
             >
               <View style={styles.btn}>
                 <Text style={styles.btnText}>

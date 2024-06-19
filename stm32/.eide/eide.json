@@ -3,7 +3,6 @@
   "type": "ARM",
   "dependenceList": [],
   "srcDirs": [
-    ".eide/deps",
     "src",
     "hal",
     "hardware",
@@ -97,11 +96,9 @@
       "custom_dep": {
         "name": "default",
         "incList": [
-          ".eide/deps",
           "lib/cmsis"
         ],
         "libList": [],
-        "sourceDirList": [],
         "defineList": [
           "USE_STDPERIPH_DRIVER",
           "STM32F10X_MD"
@@ -109,5 +106,5 @@
       }
     }
   },
-  "version": "3.3"
+  "version": "3.4"
 }
