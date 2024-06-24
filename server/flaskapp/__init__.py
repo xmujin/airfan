@@ -85,7 +85,9 @@ def create_app(test_config=None):
                 print(f"Received message: {message}")
                 ws.send(f"Echo: {message}")
     
-            
+
+
+        
     from . import db
     db.init_app(app)
     return app

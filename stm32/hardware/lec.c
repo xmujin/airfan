@@ -10,6 +10,8 @@
  */
 
 #include "stm32f10x.h"
+#include "led.h"
+
 #define RCC_PERIPH RCC_APB2Periph_GPIOB
 
 void led_init(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)

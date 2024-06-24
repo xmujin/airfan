@@ -11,15 +11,10 @@
 
 #include "stm32f10x.h"
 #include "Delay.h"
+#include "DHT11.h"
 
 #define DHT11_PORT GPIOA
 #define DHT11_PIN GPIO_Pin_5
-
-
-typedef struct {
-    uint8_t temperature;
-    uint8_t humidity;
-} DHT11_detect;
 
 
 

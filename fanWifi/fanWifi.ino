@@ -5,14 +5,19 @@
  *
  */
 
-#include <Arduino.h>
 
+
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
-
 #include <WebSocketsClient.h>
 
 #include <Hash.h>
+
+
+#include <ArduinoJson.h>
+
+
 
 ESP8266WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
@@ -57,34 +62,55 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 
 }
 
+
+
+void scanWifi()
+{
+  DynamicJsonDocument doc(1024);
+  int n = WiFi.scanNetworks(); // 开始扫描WiFi网络
+  if (n == 0) {
+    Serial.println("No networks found");
+  } else {
+
+    doc["amount"] = n; // 接收到的wifi个数
+    JsonArray point = doc.createNestedArray("wifi_point"); // 存储扫描到的wifi的数组
+    for (int i = 0; i < n; ++i) {
+      // 打印每个WiFi网络的信息
+      JsonObject wifiPoint = point.createNestedObject();
+      wifiPoint["SSID"] = WiFi.SSID(i); // wifi名
+      wifiPoint["RSSI"] = WiFi.RSSI(i); // 信号强度
+      wifiPoint["et"] = WiFi.encryptionType(i) == ENC_TYPE_NONE ? "open" : "encrypted"; // 加密类型
+      delay(10); // 短暂延迟以确保稳定性
+    }
+
+
+    Serial.write(0xFF);
+    // 发送扫描到的wifi数据到串口，再通过stm32转发数据到蓝牙，手机端通过蓝牙数据来显示扫描到的wifi网络
+    serializeJson(doc, Serial); 
+    Serial.write(0xFE);
+  }
+}
+
+
+
+
 void setup() {
 	// USE_SERIAL.begin(921600);
-	USE_SERIAL.begin(115200);
-
-	//Serial.setDebugOutput(true);
-	USE_SERIAL.setDebugOutput(true);
-
-	USE_SERIAL.println();
-	USE_SERIAL.println();
-	USE_SERIAL.println();
-
+	USE_SERIAL.begin(9600);
+	USE_SERIAL.setDebugOutput(false);
+  
 	for(uint8_t t = 4; t > 0; t--) {
-		USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
-		USE_SERIAL.flush();
 		delay(1000);
 	}
 
-	WiFiMulti.addAP("abcd", "12345678");
-
+ 
+	//WiFiMulti.addAP("abcd", "12345678");
 	//WiFi.disconnect();
-	while(WiFiMulti.run() != WL_CONNECTED) {
-		delay(100);
-	}
+	// while(WiFiMulti.run() != WL_CONNECTED) {
+	// 	delay(100);
+	// }
 	// server address, port and URL
 	webSocket.begin(WiFi.gatewayIP(), 5000, "/echo");
-
-
-
 
 
 
@@ -103,5 +129,18 @@ void setup() {
 }
 
 void loop() {
-	webSocket.loop();
+	//webSocket.loop();
+  if(Serial.available() > 0)
+  {
+    String command = Serial.readStringUntil('\n');
+    if(command == "scan_wifi")
+    {
+      scanWifi(); // 扫描wifi
+      //delay(1000);
+      
+    }
+
+  }
+
+
 }

@@ -1,9 +1,9 @@
 /**
- * @file bluetooth.c
+ * @file wifi.c
  * @author xiangbo (xx806181859@gmail.com)
  * @brief 
  * @version 1.0
- * @date 2024-06-06 15:06:87 
+ * @date 2024-06-20 10:06:19 
  * 
  * @copyright Copyright (c) 2024
  * 
@@ -12,19 +12,18 @@
 
 
 #include "stm32f10x.h"
-#include "OLED.h"
-#include "bluetooth.h"
-#include "cJSON.h"
+#include "wifi.h"
+#include<string.h>
 
-uint8_t blue_rxPacket[1024]; //接收数据包
-uint8_t blue_rxFlag = 0;
+uint8_t wifi_rxPacket[1024]; //接收数据包
+uint8_t wifi_rxFlag = 0;
 
 /**
- * @brief 初始化蓝牙, 打开串口1时钟和对应的TX  RX引脚
+ * @brief wifi的初始化，使用PA2(tx), PA3(rx)
  * @author xiangbo (xx806181859@gmail.com)
- * @date 2024-06-06 15:06:72 
+ * @date 2024-06-20 10:06:94 
  */
-void bluetooth_init(void)
+void wifi_init(void)
 {
     // 初始化USART1
     USART_InitTypeDef USART_InitStructure;
@@ -32,17 +31,17 @@ void bluetooth_init(void)
 
     // 使能GPIOA时钟
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-    // 使能USART1时钟
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+    // 使能USART2时钟
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 
-    // 配置PA9为USART1 TX
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+    // 配置PA2为USART2 TX
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; //复用推挽输出
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-    // 配置PA10为USART1 RX
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+    // 配置PA3为USART2 RX
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;  // 浮空输入
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
@@ -53,31 +52,34 @@ void bluetooth_init(void)
     USART_InitStructure.USART_Parity = USART_Parity_No;
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
-    USART_Init(USART1, &USART_InitStructure);
+    USART_Init(USART2, &USART_InitStructure);
 
-    USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+
+
+    USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
     NVIC_InitTypeDef ni;
-    ni.NVIC_IRQChannel = USART1_IRQn;
+    ni.NVIC_IRQChannel = USART2_IRQn;
     ni.NVIC_IRQChannelCmd = ENABLE;
     ni.NVIC_IRQChannelPreemptionPriority = 0;
     ni.NVIC_IRQChannelSubPriority = 0;
     NVIC_Init(&ni);
 
 
-
-    // 使能USART1
-    USART_Cmd(USART1, ENABLE);    
+    // 使能USART2
+    USART_Cmd(USART2, ENABLE);    
 
 }
 
 
-void blue_sendByte(uint8_t byte)
+
+
+
+void wifi_sendByte(uint8_t byte)
 {
-    USART_SendData(USART2, byte); // 向串口2发送数据
-    while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET); // 等待发送寄存器为空
+    USART_SendData(USART1, byte); // 发送数据到蓝牙串口
+    while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET); // 等待发送寄存器为空
 }
-
 
 void wifi_sendJson(uint8_t *array)
 {
@@ -88,35 +90,20 @@ void wifi_sendJson(uint8_t *array)
     }
 }
 
-void blue_sendString(char *array)
+void wifi_clearRxPacket(uint8_t *array)
 {
-    uint16_t i = 0;
-    while(array[i] != '\0')
-    {
-        blue_sendByte(array[i]);
-        i++;
-    }
+    memset(array, 0, 1024);
 }
 
 
 
 
 
-
-
-
-
-
-/**
- * @brief 用于蓝牙串口的接收中断
- * @author xiangbo (xx806181859@gmail.com)
- * @date 2024-06-24 09:06:94 
- */
-void USART1_IRQHandler(void)
+void USART2_IRQHandler(void)
 {
     static uint8_t rxState = 0;
     static uint16_t rxIndex = 0;
-    if(USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
+    if(USART_GetITStatus(USART2, USART_IT_RXNE) == SET)
     {
         uint8_t rxData = USART_ReceiveData(USART2);
         if(rxState == 0)
@@ -132,15 +119,15 @@ void USART1_IRQHandler(void)
             
             if(rxData != 0xFE) //包结束
             {
-                blue_rxPacket[rxIndex++] = rxData;
+                wifi_rxPacket[rxIndex++] = rxData;
             }
             else 
             {
-                blue_rxPacket[rxIndex++] = '\0';
+                wifi_rxPacket[rxIndex++] = '\0';
                 rxState = 0;
                 wifi_sendJson(rxPacket);
-                //wifi_clearRxPacket(rxPacket);
             }
         }
     }
 }
+

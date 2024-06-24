@@ -17,6 +17,8 @@
 #include "pwm.h"
 #include "DHT11.h"
 #include "led.h"
+#include "wifi.h"
+
 #define LED_PERIPH RCC_APB2Periph_GPIOA
 #define LED_PORT GPIOA
 #define LED_PIN GPIO_Pin_1
@@ -32,6 +34,7 @@ int main()
     led_close(GPIOB, GPIO_Pin_5);
     //led_open(GPIOB, GPIO_Pin_5);
     OLED_Init();
+    wifi_init(); // 初始化wifi串口
     bluetooth_init();
     //timer_init();
     OLED_ShowString(1, 1, "nazzzsm is:");
@@ -43,45 +46,43 @@ int main()
 
 
 
-    // RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-    // GPIO_InitTypeDef gpio_is;
-    // gpio_is.GPIO_Mode = GPIO_Mode_Out_PP; // 复用推挽输出
-    // gpio_is.GPIO_Pin = GPIO_Pin_6;
-    // gpio_is.GPIO_Speed = GPIO_Speed_50MHz;
-    // GPIO_Init(GPIOA, &gpio_is);
-    // GPIO_WriteBit(GPIOA, GPIO_Pin_6, Bit_SET);
-
     //uint8_t sb[] = "AT+NAME=xiangxun\r\n";
     //sendArray(sb, sizeof(sb));
-    
-    
-    //OLED_Clear();
     uint8_t a = 0;
     while (1)
     {
-        if(a == 51)
-        {
-            led_open(GPIOB, GPIO_Pin_5);
-            Delay_ms(300);
-            led_close(GPIOB, GPIO_Pin_5);
-            Delay_ms(300);
-        }
 
-        if(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET)
-        {
-            a = USART_ReceiveData(USART1);
-            if(a == 49)  // ascii 字符1
-            {
-                led_open(GPIOB, GPIO_Pin_5);
-            }
 
-            if(a == 50) // ascii 字符2
-            {
-                led_close(GPIOB, GPIO_Pin_5);
-            }
-            OLED_ShowNum(2, 1, a, 3);
-        }
-        //sendByte(1);
+        // 接收从手机蓝牙传入单片机蓝牙上的命令
+        // if(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET)
+        // {
+        //     a = USART_ReceiveData(USART1);
+        //     if(a == 49)  // ascii 字符1
+        //     {
+        //         led_open(GPIOB, GPIO_Pin_5);
+        //     }
+        //     if(a == 50) // ascii 字符2
+        //     {
+        //         led_close(GPIOB, GPIO_Pin_5);
+        //     } 
+        //     if(a == 51) // 扫描wifi的指令
+        //     {                  
+        //         OLED_ShowNum(2, 1, 22, 2);
+        //         blue_sendString("scan_wifi\n");
+                
+        //     }
+        //     a = 0;
+        // }
+
+        // if(rxFlag == 1) // 获取到了扫描到的WiFi数据
+        // {
+        //     OLED_ShowNum(2, 1, 33, 2);
+        //     wifi_sendJson(rxPacket);
+        //     wifi_clearRxPacket(rxPacket);
+        //     rxFlag = 0;
+        // }
+
+
 
 
         //USART_ReceiveString(USART1, response, sizeof(response));
@@ -107,11 +108,3 @@ int main()
     }
 }
 
-// void TIM2_IRQHandler(void)
-// {
-//     if(TIM_GetITStatus(TIM2, TIM_IT_Update) == SET)
-//     {
-//         num++;
-//         TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-//     }
-// } 
