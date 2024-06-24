@@ -79,12 +79,12 @@ void blue_sendByte(uint8_t byte)
 }
 
 
-void wifi_sendJson(uint8_t *array)
+void blue_sendJson(uint8_t *array)
 {
     uint16_t i = 0;
     while(array[i] != '\0')
     {
-        wifi_sendByte(array[i++]);
+        blue_sendByte(array[i++]);
     }
 }
 
@@ -98,6 +98,10 @@ void blue_sendString(char *array)
     }
 }
 
+void blue_clearRxPacket(uint8_t *array)
+{
+    memset(array, 0, 1024);
+}
 
 
 
@@ -116,15 +120,19 @@ void USART1_IRQHandler(void)
 {
     static uint8_t rxState = 0;
     static uint16_t rxIndex = 0;
+    
     if(USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
     {
-        uint8_t rxData = USART_ReceiveData(USART2);
+        uint8_t rxData = USART_ReceiveData(USART1);
         if(rxState == 0)
         {
+            
             if(rxData == 0xFF) // 包开始
             {
+                
                 rxState = 1;
                 rxIndex = 0;
+ 
             }
         }
         else if(rxState == 1)
@@ -134,12 +142,11 @@ void USART1_IRQHandler(void)
             {
                 blue_rxPacket[rxIndex++] = rxData;
             }
-            else 
+            else // 获取json数据结束
             {
-                blue_rxPacket[rxIndex++] = '\0';
                 rxState = 0;
-                wifi_sendJson(rxPacket);
-                //wifi_clearRxPacket(rxPacket);
+                blue_rxFlag = 1;
+                OLED_ShowNum(1,1,33,3);
             }
         }
     }

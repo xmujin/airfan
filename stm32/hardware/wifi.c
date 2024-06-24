@@ -123,9 +123,9 @@ void USART2_IRQHandler(void)
             }
             else 
             {
-                wifi_rxPacket[rxIndex++] = '\0';
                 rxState = 0;
-                wifi_sendJson(rxPacket);
+                wifi_rxFlag = 1;
+                
             }
         }
     }
