@@ -10,7 +10,7 @@ yolov5-master/.gitattributes
 yolov5-master/detect.py
 yolov5-master/export.py
 yolov5-master/hubconf.py
-yolov5-master/LICENSE
+
 yolov5-master/predict.py
 yolov5-master/requirements.txt
 yolov5-master/train.py
