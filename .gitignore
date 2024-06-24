@@ -4,7 +4,7 @@ yolov5-master/pyproject.toml
 yolov5-master/.dockerignore
 yolov5-master/.gitignore
 yolov5-master/benchmarks.py
-yolov5-master/CITATION.cff
+
 yolov5-master/CONTRIBUTING.md
 yolov5-master/.gitattributes
 yolov5-master/detect.py
