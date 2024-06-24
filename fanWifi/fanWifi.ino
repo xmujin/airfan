@@ -109,7 +109,7 @@ void setup() {
 	// while(WiFiMulti.run() != WL_CONNECTED) {
 	// 	delay(100);
 	// }
-	// server address, port and URL
+	// server address, port and URL 
 	webSocket.begin(WiFi.gatewayIP(), 5000, "/echo");
 
 

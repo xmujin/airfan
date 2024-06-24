@@ -62,7 +62,9 @@ int main()
             OLED_ShowString(3, 1, "aaa");
             if(strcmp(type->valuestring, "connect") == 0) // 连接命令,将其转发到wifi模块上
             {
-                
+                blue_sendByte(0xff);
+                blue_sendJson(blue_rxFlag); // 将数据转发到WiFi模块上
+                blue_sendByte(0xfe);
             }
             else if(strcmp(type->valuestring, "control") == 0)
             {

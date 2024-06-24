@@ -79,23 +79,10 @@ export default function FanControlScreen({route}) {
             type: 'control',
             command: 'fan_on'
           };
-          let sb = 0xff;
-          const a = RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
-          const b = RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
-          const c = RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
-          if(a)
-          {
-            console.log('发送成功1')
-          }
-          if(b)
-            {
-              console.log('发送成功2')
-            }
-            if(c)
-              {
-                console.log('发送成功3')
-              }
-          console.log(cmd)
+          
+          RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
+          RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
+          RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
           console.log(device.id)
 
           Toast.show({
