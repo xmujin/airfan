@@ -18,7 +18,8 @@
 #include "DHT11.h"
 #include "led.h"
 #include "wifi.h"
-
+#include "cJSON.h"
+#include <string.h>
 #define LED_PERIPH RCC_APB2Periph_GPIOA
 #define LED_PORT GPIOA
 #define LED_PIN GPIO_Pin_1
@@ -37,7 +38,7 @@ int main()
     wifi_init(); // 初始化wifi串口
     bluetooth_init();
     //timer_init();
-    OLED_ShowString(1, 1, "nazzzsm is:");
+    //OLED_ShowString(1, 1, "nazzzsm is:");
 
     
     
@@ -48,9 +49,45 @@ int main()
 
     //uint8_t sb[] = "AT+NAME=xiangxun\r\n";
     //sendArray(sb, sizeof(sb));
+
     uint8_t a = 0;
+    OLED_ShowString(2, 1, "123123");
+    
     while (1)
     {
+        if(blue_rxFlag == 1) // 接收到了从APP端传来的json数据
+        {
+            cJSON *json = cJSON_Parse(blue_rxPacket); // 解析json数据
+            cJSON *type = cJSON_GetObjectItemCaseSensitive(json, "type");
+            OLED_ShowString(3, 1, "aaa");
+            if(strcmp(type->valuestring, "connect") == 0) // 连接命令,将其转发到wifi模块上
+            {
+                
+            }
+            else if(strcmp(type->valuestring, "control") == 0)
+            {
+                cJSON *cmd = cJSON_GetObjectItemCaseSensitive(json, "command");
+                if(strcmp(cmd->valuestring, "fan_on") == 0)
+                {
+                    led_open(GPIOB, GPIO_Pin_5);
+                }
+                else if(strcmp(cmd->valuestring, "fan_off") == 0)
+                {
+                    led_close(GPIOB, GPIO_Pin_5);
+                }
+            }
+            cJSON_Delete(json); // 释放空间
+            blue_clearRxPacket(blue_rxPacket);
+            blue_rxFlag = 0;
+        }
+
+        if(wifi_rxFlag == 1) // 接收到了从wifi模块传来的json数据
+        {
+            wifi_sendJson(wifi_rxPacket); //发送到蓝牙串口再到APP
+            wifi_clearRxPacket(wifi_rxPacket); // 清空接收缓冲区
+            wifi_rxFlag = 0;
+
+        }
 
 
         // 接收从手机蓝牙传入单片机蓝牙上的命令

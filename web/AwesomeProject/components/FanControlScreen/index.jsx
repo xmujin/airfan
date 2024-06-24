@@ -75,8 +75,29 @@ export default function FanControlScreen({route}) {
         console.log('蓝牙已经连接');
         // 49开  50关
         if(opt === 'open') {
-          RNBluetoothClassic.writeToDevice(device.id, "1", "ascii");
+          const cmd = {
+            type: 'control',
+            command: 'fan_on'
+          };
+          let sb = 0xff;
+          const a = RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
+          const b = RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
+          const c = RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
+          if(a)
+          {
+            console.log('发送成功1')
+          }
+          if(b)
+            {
+              console.log('发送成功2')
+            }
+            if(c)
+              {
+                console.log('发送成功3')
+              }
+          console.log(cmd)
           console.log(device.id)
+
           Toast.show({
             type: 'success',
             text1: `操作成功`,
@@ -84,7 +105,13 @@ export default function FanControlScreen({route}) {
             visibilityTime: 2000,
           });
         } else if(opt === 'close') {
-          RNBluetoothClassic.writeToDevice(device.id, "2", "ascii");
+          const cmd = {
+            type: 'control',
+            command: 'fan_off'
+          };
+          RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii");
+          RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
+          RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
         }
         
       } else {
@@ -96,9 +123,10 @@ export default function FanControlScreen({route}) {
         });
       }
     }
-    socket.emit('message', '2342', (val) => {
-      console.log(val)
-  });
+  //   socket.emit('message', '2342', (val) => {
+  //     console.log(val)
+  // });
+
   };
   
   return (

@@ -11,7 +11,7 @@ import NewDeviceScreen from './components/NewDeviceScreen';
 import FanControlScreen from './components/FanControlScreen';
 import LightControlScreen from './components/LightControlScreen';
 import WifiControlScreen from './components/WifiControlScreen';
-
+import CameraScreen from './components/CameraScreen';
 const Stack = createNativeStackNavigator();
 export default function App() {
   const [selectedValue, setSelectedValue] = useState(null);
@@ -20,7 +20,7 @@ export default function App() {
     <NavigationContainer>
 
       
-    <Stack.Navigator initialRouteName='Login'>
+    <Stack.Navigator initialRouteName='Home'>
       <Stack.Screen 
         name="Login" 
         options={{headerShown: false}}
@@ -66,6 +66,12 @@ export default function App() {
         options={{headerShown: true, title: 'wifi控制'}}
         name="WifiControlScreen" 
         component={WifiControlScreen} 
+      />
+
+      <Stack.Screen 
+        options={{headerShown: true, title: '手势识别'}}
+        name="Camera" 
+        component={CameraScreen} 
       />
 
 
