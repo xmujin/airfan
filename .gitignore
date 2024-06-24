@@ -2,7 +2,7 @@ other
 yolov5-master/pyproject.toml
 
 yolov5-master/.dockerignore
-yolov5-master/.gitignore
+# yolov5-master/.gitignore
 yolov5-master/benchmarks.py
 
 yolov5-master/CONTRIBUTING.md
@@ -19,10 +19,15 @@ yolov5-master/tutorial.ipynb
 yolov5-master/.idea
 yolov5-master/.github
 yolov5-master/classify
-yolov5-master/data
+
 yolov5-master/models
 yolov5-master/runs
 yolov5-master/segment
 yolov5-master/utils
 yolov5-master/weights
 yolov5-master/README.*
+
+yolov5-master/data/*
+!yolov5-master/data/imageSet/*
+yolov5-master/data/imageSet/Main
+
