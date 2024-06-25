@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 
 
 export default function PopupMenu() {
-  const [visibel, setVisible] = useState(false)
+  const [visible, setVisible] = useState(false)
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function PopupMenu() {
 
         <Ionicons name="add-outline" size={27}  />
       </TouchableOpacity>
-      <Modal  transparent={true} visible={visibel}>
+      <Modal  transparent={true} visible={visible}>
         <SafeAreaView   style={{flex:0, zIndex:1, }}>
           <Animated.View style={[styles.popup, {opacity: fadeAnim}]}>
             <TouchableOpacity style={{}} onPress={() => {

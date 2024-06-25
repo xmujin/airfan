@@ -77,8 +77,8 @@ void scanWifi()
     for (int i = 0; i < n; ++i) {
       // 打印每个WiFi网络的信息
       JsonObject wifiPoint = point.createNestedObject();
-      wifiPoint["SSID"] = WiFi.SSID(i); // wifi名
-      wifiPoint["RSSI"] = WiFi.RSSI(i); // 信号强度
+      wifiPoint["ssid"] = WiFi.SSID(i); // wifi名
+      wifiPoint["rssi"] = WiFi.RSSI(i); // 信号强度
       wifiPoint["et"] = WiFi.encryptionType(i) == ENC_TYPE_NONE ? "open" : "encrypted"; // 加密类型
       delay(10); // 短暂延迟以确保稳定性
     }
@@ -128,18 +128,57 @@ void setup() {
 
 }
 
+
+/*
+  {
+    type: "wificmd"
+    cmd: "connect",
+    ssid: "wifiname",
+    password: "password"
+  }
+
+  {
+    type: "wificmd"
+    cmd: "scan"
+  }
+
+
+
+
+
+*/
+
 void loop() {
 	//webSocket.loop();
   if(Serial.available() > 0)
   {
-    String command = Serial.readStringUntil('\n');
-    if(command == "scan_wifi")
+    byte start = Serial.read();
+    if(start == 0xFF)
     {
-      scanWifi(); // 扫描wifi
-      //delay(1000);
-      
-    }
+      String command = Serial.readStringUntil(0xFE);
+      // 解析JSON
+      DynamicJsonDocument doc(1024);
+      deserializeJson(doc, jsonString);
+      String cmd = doc["cmd"];
+      if(cmd == "scan")
+      {
+        scanWifi(); // 返回扫描到的结果，并发送到串口
+      }
+      else if(cmd == "connect")
+      {
+        String ssid = doc["ssid"];
+        String pwd = doc["password"];
+        WiFi.begin(ssid, pwd);
+        while (WiFi.status() != WL_CONNECTED) {
+          delay(500);
+        }
 
+        
+        // Serial.write(0xFF);
+        // Serial.print("{type:'status',code:'ok'}");
+        // Serial.write(0xFE);
+      }
+    }
   }
 
 

@@ -77,13 +77,14 @@ export default function FanControlScreen({route}) {
         if(opt === 'open') {
           const cmd = {
             type: 'control',
-            command: 'fan_on'
+            cmd: 'fan_on'
           };
           
-          RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
-          RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
-          RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
+          await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
+          await RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
+          await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
           console.log(device.id)
+          
 
           Toast.show({
             type: 'success',
@@ -99,6 +100,9 @@ export default function FanControlScreen({route}) {
           RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii");
           RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
           RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
+
+
+
         }
         
       } else {

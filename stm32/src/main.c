@@ -60,7 +60,7 @@ int main()
             cJSON *json = cJSON_Parse(blue_rxPacket); // 解析json数据
             cJSON *type = cJSON_GetObjectItemCaseSensitive(json, "type");
             OLED_ShowString(3, 1, "aaa");
-            if(strcmp(type->valuestring, "connect") == 0) // 连接命令,将其转发到wifi模块上
+            if(strcmp(type->valuestring, "wificmd") == 0 || ) // 控制wifi命令,将其转发到wifi模块上
             {
                 blue_sendByte(0xff);
                 blue_sendJson(blue_rxFlag); // 将数据转发到WiFi模块上
@@ -68,7 +68,7 @@ int main()
             }
             else if(strcmp(type->valuestring, "control") == 0)
             {
-                cJSON *cmd = cJSON_GetObjectItemCaseSensitive(json, "command");
+                cJSON *cmd = cJSON_GetObjectItemCaseSensitive(json, "cmd");
                 if(strcmp(cmd->valuestring, "fan_on") == 0)
                 {
                     led_open(GPIOB, GPIO_Pin_5);
@@ -85,9 +85,13 @@ int main()
 
         if(wifi_rxFlag == 1) // 接收到了从wifi模块传来的json数据
         {
+
+            // 对于WiFi扫描信息，需要转发
             wifi_sendJson(wifi_rxPacket); //发送到蓝牙串口再到APP
             wifi_clearRxPacket(wifi_rxPacket); // 清空接收缓冲区
             wifi_rxFlag = 0;
+
+            // 对于控制信息，则直接控制风扇
 
         }
 

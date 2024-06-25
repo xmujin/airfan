@@ -10,7 +10,7 @@ import PopupMenu from './components/PopupMenu'
 import NewDeviceScreen from './components/NewDeviceScreen';
 import FanControlScreen from './components/FanControlScreen';
 import LightControlScreen from './components/LightControlScreen';
-import WifiControlScreen from './components/WifiControlScreen';
+import WifiConnectScreen from './components/WifiConnectScreen';
 import CameraScreen from './components/CameraScreen';
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -52,20 +52,20 @@ export default function App() {
 
       <Stack.Screen 
         options={{headerShown: true, title: '风扇控制'}}
-        name="FanControlScreen" 
+        name="FanControl" 
         component={FanControlScreen} 
       />
 
       <Stack.Screen 
         options={{headerShown: true, title: '灯光控制'}}
-        name="LightControlScreen" 
+        name="LightControl" 
         component={LightControlScreen} 
       />
 
       <Stack.Screen 
-        options={{headerShown: true, title: 'wifi控制'}}
-        name="WifiControlScreen" 
-        component={WifiControlScreen} 
+        options={{headerShown: true, title: 'wifi连接'}}
+        name="WifiConnect" 
+        component={WifiConnectScreen} 
       />
 
       <Stack.Screen 

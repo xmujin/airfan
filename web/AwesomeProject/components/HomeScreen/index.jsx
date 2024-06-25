@@ -133,19 +133,22 @@ export default function HomeScreen({ navigation }) {
             style={styles.pickerButton}
             onPress={() => {
               setModalVisible(false);
-              navigation.navigate('FanControlScreen', {device: connectedDevice});
+              navigation.navigate('FanControl', {device: connectedDevice});
 
             }
             }
           >
             <Text style={styles.pickerText}>风扇控制</Text>
           </TouchableOpacity>
+
+
+          
           <TouchableOpacity
             style={styles.pickerButton}
             onPress={() => {
 
               setModalVisible(false);
-              navigation.navigate('LightControlScreen');
+              navigation.navigate('LightControl');
 
 
             }
@@ -159,7 +162,7 @@ export default function HomeScreen({ navigation }) {
 
 
               setModalVisible(false);
-              navigation.navigate('WifiControlScreen');
+              navigation.navigate('WifiConnect', {device: connectedDevice});
 
 
             }}
