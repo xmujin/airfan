@@ -25,8 +25,15 @@
 !cfg/yolov3*.cfg
 # data/images/*
 storage.googleapis.com
-runs/*
+!best.pt
 !/data/imageSet
+!train.py
+!requirements.txt
+!utils
+!models
+!runs
+runs/detect/*
+
 
 # !data/*.yaml
 # !data/hyps
@@ -50,7 +57,7 @@ VOC/
 
 # Neural Network weights -----------------------------------------------------------------------------------------------
 *.weights
-*.pt
+
 *.pb
 *.onnx
 *.engine
