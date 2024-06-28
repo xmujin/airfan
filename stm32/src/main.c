@@ -26,6 +26,30 @@
 
 
 
+/**
+ * @brief 执行风扇控制命令
+ * {
+ *  type: control,
+ *  cmd: 控制命令
+ * }
+ * @param cmd 
+ * @author xiangbo (xx806181859@gmail.com)
+ * @date 2024-06-27 10:06:47 
+ */
+void controlFan(const char * cmd)
+{
+    if(strcmp(cmd, "fan_on") == 0)
+    {
+        led_open(GPIOB, GPIO_Pin_5);
+    }
+    else if(strcmp(cmd, "fan_off") == 0)
+    {
+        led_close(GPIOB, GPIO_Pin_5);
+    }
+
+}
+
+
 
 uint16_t i;
 //uint16_t num = 0;
@@ -60,6 +84,8 @@ int main()
             cJSON *json = cJSON_Parse(blue_rxPacket); // 解析json数据
             cJSON *type = cJSON_GetObjectItemCaseSensitive(json, "type");
             OLED_ShowString(3, 1, "aaa");
+
+
             if(strcmp(type->valuestring, "wificmd") == 0 || ) // 控制wifi命令,将其转发到wifi模块上
             {
                 blue_sendByte(0xff);
@@ -68,30 +94,37 @@ int main()
             }
             else if(strcmp(type->valuestring, "control") == 0)
             {
+
                 cJSON *cmd = cJSON_GetObjectItemCaseSensitive(json, "cmd");
-                if(strcmp(cmd->valuestring, "fan_on") == 0)
-                {
-                    led_open(GPIOB, GPIO_Pin_5);
-                }
-                else if(strcmp(cmd->valuestring, "fan_off") == 0)
-                {
-                    led_close(GPIOB, GPIO_Pin_5);
-                }
+                controlFan(cmd->valuestring);
             }
+
+
             cJSON_Delete(json); // 释放空间
             blue_clearRxPacket(blue_rxPacket);
             blue_rxFlag = 0;
+
+
+
         }
 
         if(wifi_rxFlag == 1) // 接收到了从wifi模块传来的json数据
         {
-
-            // 对于WiFi扫描信息，需要转发
-            wifi_sendJson(wifi_rxPacket); //发送到蓝牙串口再到APP
-            wifi_clearRxPacket(wifi_rxPacket); // 清空接收缓冲区
-            wifi_rxFlag = 0;
-
-            // 对于控制信息，则直接控制风扇
+            cJSON *json = cJSON_Parse(blue_rxPacket); // 解析json数据
+            cJSON *type = cJSON_GetObjectItemCaseSensitive(json, "type");
+            if(strcmp(type->valuestring, "information") == 0)
+            {
+                // 对于WiFi扫描信息，需要转发
+                wifi_sendJson(wifi_rxPacket); //发送到蓝牙串口再到APP
+                wifi_clearRxPacket(wifi_rxPacket); // 清空接收缓冲区
+                wifi_rxFlag = 0;
+            }
+            else if(strcmp(type->valuestring, "control") == 0)
+            {
+                // 对于控制信息，则直接控制风扇
+                cJSON *cmd = cJSON_GetObjectItemCaseSensitive(json, "cmd");
+                controlFan(cmd->valuestring);
+            }
 
         }
 

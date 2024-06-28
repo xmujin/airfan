@@ -32,16 +32,19 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 			break;
 		case WStype_CONNECTED: {
 			USE_SERIAL.printf("[WSc] Connected to url: %s\n", payload);
-
 			// send message to server when Connected
 			webSocket.sendTXT("ConnectedHHH");
 		}
 			break;
 		case WStype_TEXT:
-			USE_SERIAL.printf("[WSc] get text: %s\n", payload);
+      // 解析payload的json数据
+      // DynamicJsonDocument doc(1024);
+      // deserializeJson(doc, payload);
+      USE_SERIAL.write(0xFF);
+      // 发送控制指令的json到串口
+			USE_SERIAL.printf("%s", payload);
+      USE_SERIAL.write(0xFE);
 
-			// send message to server
-			// webSocket.sendTXT("message here");
 			break;
 		case WStype_BIN:
 			USE_SERIAL.printf("[WSc] get binary length: %u\n", length);
@@ -67,6 +70,8 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 void scanWifi()
 {
   DynamicJsonDocument doc(1024);
+  doc["type"] = "information";
+  doc["content"] = "wifi_scan";
   int n = WiFi.scanNetworks(); // 开始扫描WiFi网络
   if (n == 0) {
     Serial.println("No networks found");
@@ -109,8 +114,7 @@ void setup() {
 	// while(WiFiMulti.run() != WL_CONNECTED) {
 	// 	delay(100);
 	// }
-	// server address, port and URL 
-	webSocket.begin(WiFi.gatewayIP(), 5000, "/echo");
+	
 
 
 
@@ -130,6 +134,7 @@ void setup() {
 
 
 /*
+  接收到的wifi命令
   {
     type: "wificmd"
     cmd: "connect",
@@ -142,6 +147,18 @@ void setup() {
     cmd: "scan"
   }
 
+  控制命令
+  {
+    type: "control"
+  }
+
+  扫描到的wifi数据
+  {
+    type: "information",
+    content: "wifi_content",
+
+  }
+
 
 
 
@@ -149,7 +166,7 @@ void setup() {
 */
 
 void loop() {
-	//webSocket.loop();
+	webSocket.loop();
   if(Serial.available() > 0)
   {
     byte start = Serial.read();
@@ -158,7 +175,7 @@ void loop() {
       String command = Serial.readStringUntil(0xFE);
       // 解析JSON
       DynamicJsonDocument doc(1024);
-      deserializeJson(doc, jsonString);
+      deserializeJson(doc, command);
       String cmd = doc["cmd"];
       if(cmd == "scan")
       {
@@ -172,6 +189,11 @@ void loop() {
         while (WiFi.status() != WL_CONNECTED) {
           delay(500);
         }
+
+
+        // server address, port and URL 
+	      String url = String("/connect?mac=") + WiFi.macAddress(); // wifi的mac地址
+        webSocket.begin(WiFi.gatewayIP(), 5000, url.c_str());
 
         
         // Serial.write(0xFF);
