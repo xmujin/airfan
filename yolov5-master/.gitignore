@@ -33,7 +33,7 @@ storage.googleapis.com
 !models
 !runs
 runs/detect/*
-
+!predict.py
 
 # !data/*.yaml
 # !data/hyps
