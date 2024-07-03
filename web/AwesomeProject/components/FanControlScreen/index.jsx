@@ -52,16 +52,35 @@ export default function FanControlScreen({route}) {
   }, []);
 
 
+
+
   // 打开风扇的处理逻辑
   const handleControl = async (opt) => {
     const device = route.params.device;
-    //console.log(route)
-    console.log('蓝牙id',device.id);
-    const flag = await RNBluetoothClassic.isDeviceConnected(device.id);
+    // console.log('蓝牙id',device.id);
+    let flag;
+    try {
+      flag = await RNBluetoothClassic.isDeviceConnected(device.id);
+    } catch (error) {
+      
+    }
+    console.log('asdf')
+    
+    if(isConnectedServer){  // 手机端是否连接到网络
+      if(isDeviceOnline) { // 检查设备是否在线
+        await fetch(`http://dontbeknow:5000/control?mac=A4:E5:7C:86:5A:A4&cmd=fan_on`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Data received:', data);
+          // 在这里处理返回的数据
+        });
 
-    if(isConnectedServer){ 
-      if(isDeviceOnline) {
-        
+
       } else {
         Toast.show({
           type: 'error',
@@ -72,20 +91,22 @@ export default function FanControlScreen({route}) {
       }
     } else {
       if(flag) { // 蓝牙已经连接
-        console.log('蓝牙已经连接');
-        // 49开  50关
         if(opt === 'open') {
           const cmd = {
             type: 'control',
             cmd: 'fan_on'
           };
+          console.log('真服了')
           
-          await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
-          await RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
-          await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
+          try {
+            await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
+            await RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
+            await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
+          } catch (error) {
+            console.log(error)
+          }
+          
           console.log(device.id)
-          
-
           Toast.show({
             type: 'success',
             text1: `操作成功`,
@@ -95,14 +116,53 @@ export default function FanControlScreen({route}) {
         } else if(opt === 'close') {
           const cmd = {
             type: 'control',
-            command: 'fan_off'
+            cmd: 'fan_off'
           };
-          RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii");
-          RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
-          RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
+
+          await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii");
+          await RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
+          await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
+          Toast.show({
+            type: 'success',
+            text1: `操作成功`,
+            position: 'top',
+            visibilityTime: 2000,
+          });
+          console.log('风扇关闭')
+
+        } else if(opt === 'up') {
+          const cmd = {
+            type: 'control',
+            cmd: 'fan_up'
+          };
+
+          await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii");
+          await RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
+          await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
 
 
-
+          Toast.show({
+            type: 'success',
+            text1: `风扇已加速`,
+            position: 'bottom',
+            visibilityTime: 2000,
+          });
+          console.log('风扇关闭')
+        } else if(opt === 'down'){
+          const cmd = {
+            type: 'control',
+            cmd: 'fan_down'
+          };
+          await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii");
+          await RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
+          await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
+          Toast.show({
+            type: 'success',
+            text1: `风扇已减速`,
+            position: 'bottom',
+            visibilityTime: 2000,
+          });
+          console.log('风扇关闭')
         }
         
       } else {
@@ -114,9 +174,7 @@ export default function FanControlScreen({route}) {
         });
       }
     }
-  //   socket.emit('message', '2342', (val) => {
-  //     console.log(val)
-  // });
+
 
   };
   
@@ -142,13 +200,13 @@ export default function FanControlScreen({route}) {
       <View style={styles.container}>
         <TouchableHighlight style={styles.btn}
           underlayColor="#DDDDDD" // 设置高亮颜色
-          onPress={() => console.log('Button pressed')}
+          onPress={() =>  handleControl('up')}
         >
           <Text style={styles.btnText}>加速</Text>
         </TouchableHighlight>
         <TouchableHighlight style={styles.btn}
           underlayColor="#DDDDDD" // 设置高亮颜色
-          onPress={() => console.log('Button pressed')}
+          onPress={() =>  handleControl('down')}
         >
           <Text style={styles.btnText}>减速</Text>
         </TouchableHighlight>

@@ -19,8 +19,7 @@ export default function App() {
   return (
     <NavigationContainer>
 
-      
-    <Stack.Navigator initialRouteName='Camera'>
+    <Stack.Navigator initialRouteName='Home'>
       <Stack.Screen 
         name="Login" 
         options={{headerShown: false}}

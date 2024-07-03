@@ -26,6 +26,37 @@
 
 
 
+// 挡位： 1， 2，3 档
+uint8_t gearPos = 1;
+
+/**
+ * @brief 换挡
+ * @param gearPos 
+ * @author xiangbo (xx806181859@gmail.com)
+ * @date 2024-07-02 21:07:72 
+ */
+void changeGearPos(uint8_t gearPos)
+{
+    OLED_Clear();
+    if(gearPos == 1)
+    {
+        pwm_setCompare2(33);
+        OLED_ShowString(1, 1, "current: one");
+    }
+    else if(gearPos == 2)
+    {
+        pwm_setCompare2(66);
+        OLED_ShowString(1, 1, "current: two");
+    }
+    else if(gearPos == 3) 
+    {
+        pwm_setCompare2(100);
+        OLED_ShowString(1, 1, "current: three");
+    }
+}
+
+
+
 /**
  * @brief 执行风扇控制命令
  * {
@@ -40,42 +71,66 @@ void controlFan(const char * cmd)
 {
     if(strcmp(cmd, "fan_on") == 0)
     {
-        led_open(GPIOB, GPIO_Pin_5);
+        changeGearPos(gearPos);
     }
     else if(strcmp(cmd, "fan_off") == 0)
     {
-        led_close(GPIOB, GPIO_Pin_5);
+        pwm_setCompare2(0);
     }
+    else if(strcmp(cmd, "fan_up") == 0)
+    {
+        gearPos++;
+        if(gearPos > 3)
+        {
+            gearPos = 3;
+        }
+        changeGearPos(gearPos);
+
+    }
+    else if(strcmp(cmd, "fan_down") == 0)
+    {
+        gearPos--;
+        if(gearPos < 1)
+        {
+            gearPos = 1;
+        }
+        changeGearPos(gearPos);
+    }
+    else if(strcmp(cmd, "one") == 0)
+    {
+        gearPos = 1;
+        changeGearPos(gearPos);
+    }
+    else if(strcmp(cmd, "two") == 0)
+    {
+        gearPos = 2;
+        changeGearPos(gearPos);
+    }
+    else if(strcmp(cmd, "three") == 0)
+    {
+        gearPos = 3;
+        changeGearPos(gearPos);
+    }
+
+    
+    
 
 }
 
 
 
-uint16_t i;
-//uint16_t num = 0;
+
 int main()
 {
-    led_init(GPIOB, GPIO_Pin_5);
-    led_close(GPIOB, GPIO_Pin_5);
+
+    pwm_init();
+    //led_init(GPIOB, GPIO_Pin_5);
+    //led_close(GPIOB, GPIO_Pin_5);
     //led_open(GPIOB, GPIO_Pin_5);
     OLED_Init();
     wifi_init(); // 初始化wifi串口
     bluetooth_init();
-    //timer_init();
-    //OLED_ShowString(1, 1, "nazzzsm is:");
-
-    
-    
-    //OLED_ShowString(2, 1, "shabi");
-    //pwm_init();                
-
-
-
-    //uint8_t sb[] = "AT+NAME=xiangxun\r\n";
-    //sendArray(sb, sizeof(sb));
-
-    uint8_t a = 0;
-    OLED_ShowString(2, 1, "123123");
+    OLED_ShowString(1, 1, "current: one");
     
     while (1)
     {
@@ -83,13 +138,13 @@ int main()
         {
             cJSON *json = cJSON_Parse(blue_rxPacket); // 解析json数据
             cJSON *type = cJSON_GetObjectItemCaseSensitive(json, "type");
-            OLED_ShowString(3, 1, "aaa");
+            
 
 
-            if(strcmp(type->valuestring, "wificmd") == 0 || ) // 控制wifi命令,将其转发到wifi模块上
+            if(strcmp(type->valuestring, "wificmd") == 0) // 控制wifi命令,将其转发到wifi模块上
             {
                 blue_sendByte(0xff);
-                blue_sendJson(blue_rxFlag); // 将数据转发到WiFi模块上
+                blue_sendJson(blue_rxPacket); // 将数据转发到WiFi模块上
                 blue_sendByte(0xfe);
             }
             else if(strcmp(type->valuestring, "control") == 0)
@@ -97,7 +152,10 @@ int main()
 
                 cJSON *cmd = cJSON_GetObjectItemCaseSensitive(json, "cmd");
                 controlFan(cmd->valuestring);
+                OLED_ShowString(3, 1, cmd->valuestring);
+
             }
+     
 
 
             cJSON_Delete(json); // 释放空间
@@ -110,77 +168,30 @@ int main()
 
         if(wifi_rxFlag == 1) // 接收到了从wifi模块传来的json数据
         {
-            cJSON *json = cJSON_Parse(blue_rxPacket); // 解析json数据
+
+            cJSON *json = cJSON_Parse(wifi_rxPacket); // 解析json数据
             cJSON *type = cJSON_GetObjectItemCaseSensitive(json, "type");
+            
+            OLED_ShowString(2, 1, "receive:wifi");
             if(strcmp(type->valuestring, "information") == 0)
             {
                 // 对于WiFi扫描信息，需要转发
                 wifi_sendJson(wifi_rxPacket); //发送到蓝牙串口再到APP
-                wifi_clearRxPacket(wifi_rxPacket); // 清空接收缓冲区
-                wifi_rxFlag = 0;
+                OLED_ShowString(3, 1, "wifi_message");
             }
             else if(strcmp(type->valuestring, "control") == 0)
             {
                 // 对于控制信息，则直接控制风扇
                 cJSON *cmd = cJSON_GetObjectItemCaseSensitive(json, "cmd");
                 controlFan(cmd->valuestring);
+                OLED_ShowString(3, 1, "control:wifi");
             }
+            wifi_sendJson(wifi_rxPacket); //发送到蓝牙串口再到APP
+            wifi_clearRxPacket(wifi_rxPacket); // 清空接收缓冲区
+            wifi_rxFlag = 0;
+            OLED_ShowString(4, 1, "finish");
 
         }
-
-
-        // 接收从手机蓝牙传入单片机蓝牙上的命令
-        // if(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET)
-        // {
-        //     a = USART_ReceiveData(USART1);
-        //     if(a == 49)  // ascii 字符1
-        //     {
-        //         led_open(GPIOB, GPIO_Pin_5);
-        //     }
-        //     if(a == 50) // ascii 字符2
-        //     {
-        //         led_close(GPIOB, GPIO_Pin_5);
-        //     } 
-        //     if(a == 51) // 扫描wifi的指令
-        //     {                  
-        //         OLED_ShowNum(2, 1, 22, 2);
-        //         blue_sendString("scan_wifi\n");
-                
-        //     }
-        //     a = 0;
-        // }
-
-        // if(rxFlag == 1) // 获取到了扫描到的WiFi数据
-        // {
-        //     OLED_ShowNum(2, 1, 33, 2);
-        //     wifi_sendJson(rxPacket);
-        //     wifi_clearRxPacket(rxPacket);
-        //     rxFlag = 0;
-        // }
-
-
-
-
-        //USART_ReceiveString(USART1, response, sizeof(response));
-        //OLED_ShowString(2, 1, (char *)response);
-        //DHT11_detect data = DHT11_Read();
-        //OLED_ShowString(2, 1, (char *)response);
-        
-        //OLED_ShowNum(2, 9, data.temperature, 2);
-        //OLED_ShowString(3, 1, "humidity: ");
-        //OLED_ShowNum(3, 11, data.humidity, 2);
-        // for (i = 0; i <= 100; i++)
-        // {
-        //     pwm_setCompare2(i);
-        //     Delay_ms(15);
-        // }
-
-        // for (i = 0; i <= 100; i++)
-        // {
-        //     pwm_setCompare2(100 - i);
-        //     Delay_ms(15);
-        // }
-        
     }
 }
 

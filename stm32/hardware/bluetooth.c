@@ -146,7 +146,7 @@ void USART1_IRQHandler(void)
             {
                 rxState = 0;
                 blue_rxFlag = 1;
-                OLED_ShowNum(1,1,33,3);
+                
             }
         }
     }

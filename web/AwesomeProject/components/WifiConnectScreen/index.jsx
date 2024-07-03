@@ -2,7 +2,8 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, TextInput, B
 import React, { useState } from 'react'
 import Layout from '../WifiListLayout'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-
+import RNBluetoothClassic from 'react-native-bluetooth-classic';
+import { Buffer } from 'buffer'; // 引入 buffer
 export default function WifiConnectScreen({route}) {
   const [devices, setDevices] = useState([]); // 存储扫描到的设备
   const [visible, setVisible] = useState(false);
@@ -16,17 +17,18 @@ export default function WifiConnectScreen({route}) {
       type: "wificmd",
       cmd: "scan",
     };
+
+
+    const device = route.params.device;
     await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
     await RNBluetoothClassic.writeToDevice(device.id, JSON.stringify(cmd), "ascii");
     await RNBluetoothClassic.writeToDevice(device.id, String.fromCharCode(0xFE), "ascii");
-    console.log(device.id)
-    const str = await RNBluetoothClassic.readFromDevice(device.id); // 获取发送过来
-    const data = str.slice(1, -1);
-    console.log(data);
-
-    // const data = '{"amount":3,"wifi_point":[{"ssid":"12345"}]}';
-    // console.log(data)
-    const json = JSON.parse(data);
+    let c;
+    while((c = await RNBluetoothClassic.availableFromDevice(device.id)) == 0);
+    const data = await RNBluetoothClassic.readFromDevice(device.id); // 获取发送过来
+    const decodedString = Buffer.from(data, 'base64').toString('utf-8');
+    const json = JSON.parse(decodedString);
+    console.log(decodedString)
     setDevices(json['wifi_point']);
 
 
@@ -94,7 +96,7 @@ export default function WifiConnectScreen({route}) {
 				<FlatList
 					data={devices}
 					ListEmptyComponent={() => (<Text style={{fontSize:10}}>未扫描到wifi</Text>)}
-					keyExtractor={(item) => item.ssid}
+					keyExtractor={(item, index) => index.toString()}  // 使用索引作为键
 					renderItem={({ item }) => (
 						<View>
 							<TouchableOpacity onPress={() => {setVisible(true); setCurrentWifi(item.ssid)}}>

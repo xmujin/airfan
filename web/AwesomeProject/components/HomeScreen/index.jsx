@@ -37,7 +37,7 @@ export default function HomeScreen({ navigation }) {
    
     try {
       
-			const connected = await RNBluetoothClassic.connectToDevice(item.id);
+			const connected = await RNBluetoothClassic.connectToDevice(item.id, {connectionType: 'binary'});
       setConnectedDevice(connected);
       setFavorites(favorites.map(favorite =>
         favorite.id === item.id ? { name:favorite.name, id: favorite.id, isConnected: true } : favorite
@@ -168,6 +168,20 @@ export default function HomeScreen({ navigation }) {
             }}
           >
             <Text style={styles.pickerText}>wifi连接</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.pickerButton}
+            onPress={() => {
+
+
+              setModalVisible(false);
+              navigation.navigate('Camera', {device: connectedDevice});
+
+
+            }}
+          >
+            <Text style={styles.pickerText}>手势识别</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

@@ -2,21 +2,21 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Camera, useCameraDevices, useFrameProcessor  } from 'react-native-vision-camera';
 import RNFS from 'react-native-fs';
+import RNBluetoothClassic from 'react-native-bluetooth-classic';
 
-
-export default function CameraScreen() {
+export default function CameraScreen({route}) {
     const [hasPermission, setHasPermission] = useState(false);
     const devices = useCameraDevices();
     const device = devices[0];
     const cameraRef = React.useRef(null);
-    // useEffect(() => {
-    //   const getPermissions = async () => {
-    //     const status = await Camera.requestCameraPermission();
-    //     setHasPermission(status === 'authorized');
-    //   };
+    useEffect(() => {
+      const getPermissions = async () => {
+        const status = await Camera.requestCameraPermission();
+        setHasPermission(status === 'authorized');
+      };
   
-    //   getPermissions();
-    // }, []);
+      getPermissions();
+    }, []);
 
     // const frameProcessor = useFrameProcessor((frame) => {
     //   'worklet'
@@ -25,6 +25,8 @@ export default function CameraScreen() {
 
 
     const takePhotoAndUpload = async () => {
+
+      
       
       if (cameraRef.current) {
         const photo = await cameraRef.current.takePhoto({
@@ -35,8 +37,8 @@ export default function CameraScreen() {
 
         const base64Image = await RNFS.readFile(photo.path, 'base64');
         
-
-        await fetch('http://192.168.163.160:5000/detect', {
+        console.log('拍照')
+        await fetch('http://dontbeknow:5000/detect', {
           method: 'POST',
           body: JSON.stringify({
             image: base64Image,
@@ -46,8 +48,79 @@ export default function CameraScreen() {
           },
         })
         .then(response => response.json())
-        .then(result => {
+        .then(async result => {
           console.log('Detection result:', result);
+          const blueDevice = route.params.device;
+          
+          
+          if(result['label'] === 'like') {
+            const cmd = {
+              type: 'control',
+              cmd: 'fan_on'
+            };
+            try {
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, JSON.stringify(cmd), "ascii");
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, String.fromCharCode(0xFE), "ascii");
+            } catch (error) {
+              console.log(error)
+            }
+          } else if(result['label'] === 'palm') {
+            const cmd = {
+              type: 'control',
+              cmd: 'fan_off'
+            };
+            try {
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, JSON.stringify(cmd), "ascii");
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, String.fromCharCode(0xFE), "ascii");
+            } catch (error) {
+              console.log(error)
+            }
+          } else if(result['label'] === 'one') {
+            const cmd = {
+              type: 'control',
+              cmd: 'one'
+            };
+            try {
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, JSON.stringify(cmd), "ascii");
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, String.fromCharCode(0xFE), "ascii");
+            } catch (error) {
+              console.log(error)
+            }
+          } else if(result['label'] === 'peace') {
+            const cmd = {
+              type: 'control',
+              cmd: 'two'
+            };
+            try {
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, JSON.stringify(cmd), "ascii");
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, String.fromCharCode(0xFE), "ascii");
+            } catch (error) {
+              console.log(error)
+            }
+          } else if(result['label'] === 'ok') {
+            const cmd = {
+              type: 'control',
+              cmd: 'three'
+            };
+            try {
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, String.fromCharCode(0xFF), "ascii"); // 使用包含指定编码字符的字符串
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, JSON.stringify(cmd), "ascii");
+              await RNBluetoothClassic.writeToDevice(blueDevice.id, String.fromCharCode(0xFE), "ascii");
+            } catch (error) {
+              console.log(error)
+            }
+          }
+            
+          
+
+
+
+
+
         })
         .catch(error => {
           console.error('Error:', error);

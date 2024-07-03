@@ -9,10 +9,10 @@ import numpy as np
 from models.common import DetectMultiBackend
 from utils.general import non_max_suppression, scale_boxes
 import base64
-
+import json
 
 # 预加载 YOLOv5 模型
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda')
 weights = 'best.pt'  # 模型权重文件路径
 model = DetectMultiBackend(weights, device=device)
 model.eval()
@@ -99,14 +99,9 @@ def create_app(test_config=None):
             return jsonify({'label':'null'})
         
         
-        
+    
 
     
-    # a simple page that says hello
-    @app.route('/sb', methods=['GET'])
-    def sb():
-        print('sb')
-        return 'Hello, World!' 
 
     # a simple page that says hello
     @app.route('/hello', methods=['GET'])
@@ -116,6 +111,24 @@ def create_app(test_config=None):
         ws.send('hhh') # 发送socket消息
         print('sb')
         return 'Hello, World!' 
+    
+    # a simple page that says hello
+    @app.route('/control', methods=['GET'])
+    def control():
+        print('sb')
+        print('sb')
+        print('sb')
+        mac = request.args.get('mac')
+        ws = clients[mac]
+        cmd = request.args.get('cmd')
+        all = {'type': 'control', 'cmd': cmd}
+        print(all)
+        message = json.dumps(all)  # 将字典转换为 JSON 字符串
+
+        ws.send(message) # 发送socket消息
+        print(message)
+        return 'Hello, World!' 
+
     
 
     @app.route('/register', methods=['POST'])

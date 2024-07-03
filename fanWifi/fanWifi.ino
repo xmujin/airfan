@@ -28,10 +28,10 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 
 	switch(type) {
 		case WStype_DISCONNECTED:
-			USE_SERIAL.printf("[WSc] Disconnected!\n");
+			//USE_SERIAL.printf("[WSc] Disconnected!\n");
 			break;
 		case WStype_CONNECTED: {
-			USE_SERIAL.printf("[WSc] Connected to url: %s\n", payload);
+			//USE_SERIAL.printf("[WSc] Connected to url: %s\n", payload);
 			// send message to server when Connected
 			webSocket.sendTXT("ConnectedHHH");
 		}
@@ -47,7 +47,7 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 
 			break;
 		case WStype_BIN:
-			USE_SERIAL.printf("[WSc] get binary length: %u\n", length);
+			//USE_SERIAL.printf("[WSc] get binary length: %u\n", length);
 			hexdump(payload, length);
 
 			// send data to server
@@ -55,11 +55,11 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 			break;
         case WStype_PING:
             // pong will be send automatically
-            USE_SERIAL.printf("[WSc] get ping\n");
+            //USE_SERIAL.printf("[WSc] get ping\n");
             break;
         case WStype_PONG:
             // answer to a ping we send
-            USE_SERIAL.printf("[WSc] get pong\n");
+            //USE_SERIAL.printf("[WSc] get pong\n");
             break;
     }
 
@@ -92,6 +92,7 @@ void scanWifi()
     Serial.write(0xFF);
     // 发送扫描到的wifi数据到串口，再通过stm32转发数据到蓝牙，手机端通过蓝牙数据来显示扫描到的wifi网络
     serializeJson(doc, Serial); 
+    Serial.write('\n');
     Serial.write(0xFE);
   }
 }
