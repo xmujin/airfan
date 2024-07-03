@@ -34,7 +34,7 @@ import os
 import platform
 import sys
 from pathlib import Path
-
+import json
 import torch
 
 
@@ -72,6 +72,8 @@ def run(
     weights=ROOT ,  # model path or triton URL
     source=ROOT / "data/images",  # file/dir/URL/glob/screen/0(webcam)
     data=ROOT / "data/coco128.yaml",  # dataset.yaml path
+    save_json=True,  # save with json
+    content_json=[], #result
     imgsz=(640, 640),  # inference size (height, width)
     conf_thres=0.25,  # confidence threshold
     iou_thres=0.45,  # NMS IOU threshold
@@ -202,6 +204,7 @@ def run(
                 #    s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
 
                 # Write results
+                num=0
                 for *xyxy, conf, cls in reversed(det):
                     c = int(cls)  # integer class
                     label = names[c] if hide_conf else f"{names[c]}"
@@ -253,8 +256,31 @@ def run(
                         vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
                     vid_writer[i].write(im0)
 
+                # 输出 json 文件
+            if save_json:
+                # windows下使用
+                num += 1
+                file_name = save_path.split('\\')
+                # Linux下使用
+                # file_name = save_path.split('/')
+                content_dic = {
+                    "name": file_name[len(file_name) - 1],
+                    "num": num,
+                    "category": (names[int(cls)]),
+                    "bbox": torch.tensor(xyxy).view(1, 4).view(-1).tolist(),
+                    "score": conf.tolist()
+                }
+                content_json.append(content_dic)
+
+
+
+
         # Print time (inference-only)
         # LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
+    print(content_json)
+    with open('images.json', 'w') as file_obj:
+         json.dump(content_json, file_obj)
+
 
     # Print results
     t = tuple(x.t / seen * 1e3 for x in dt)  # speeds per image
@@ -270,7 +296,7 @@ def parse_opt():
     """Parses command-line arguments for YOLOv5 detection, setting inference options and model configurations."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--weights", nargs="+", type=str, default=ROOT / "best.pt", help="model path or triton URL")
-    parser.add_argument("--source", type=str, default=ROOT / "data/images/6.mp4", help="file/dir/URL/glob/screen/0(webcam)")
+    parser.add_argument("--source", type=str, default=ROOT / "data/images/2.jpg", help="file/dir/URL/glob/screen/0(webcam)")
     parser.add_argument("--data", type=str, default=ROOT / "data/coco128.yaml", help="(optional) dataset.yaml path")
     parser.add_argument("--imgsz", "--img", "--img-size", nargs="+", type=int, default=[1024], help="inference size h,w")
     parser.add_argument("--conf-thres", type=float, default=0.25, help="confidence threshold")
